@@ -96,9 +96,19 @@ a { color: inherit; }
   background: var(--green);
 }
 
-.hero__scene iframe {
+/* The Spline scene (official <spline-viewer> web component). It starts
+   hidden and fades in on load, so the green field is all that shows until
+   the WebGL scene is ready — no white flash, no loading spinner. */
+.hero__scene spline-viewer {
+  display: block;
   width: 100%;
   height: 100%;
+  opacity: 0;
+  transition: opacity 600ms ease;
+}
+
+.hero__scene spline-viewer.is-loaded {
+  opacity: 1;
 }
 
 /* Overlay lockup — non-interactive so the 3D scene stays draggable. */
