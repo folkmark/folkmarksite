@@ -1,0 +1,281 @@
+/* ============================================================
+   FOLKMARK — styles.css
+   Minimalist Americana: two flat colors, strong type hierarchy,
+   hairline rules, generous negative space.
+
+   Sections:
+     1. Design tokens
+     2. Base / reset
+     3. Focus & motion
+     4. Hero
+     5. Statement
+     6. Contact
+     7. Footer
+     8. Responsive
+   ============================================================ */
+
+
+/* ------------------------------------------------------------
+   1. DESIGN TOKENS
+   Two brand colors only. The hairline shades are translucent
+   tints of those same two colors (a utility, not a 3rd hue).
+   ------------------------------------------------------------ */
+:root {
+  --green:          #1D3C2E;   /* forest green — primary */
+  --parchment:      #F7F4EE;   /* warm off-white — secondary */
+
+  --hairline-dark:  rgba(29, 60, 46, 0.18);    /* rules on parchment */
+  --hairline-light: rgba(247, 244, 238, 0.24); /* rules on green */
+
+  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  --font-ui:      'Overpass', system-ui, -apple-system, Helvetica, Arial, sans-serif;
+
+  /* Fluid page gutter, reused everywhere for consistent rhythm. */
+  --gutter: clamp(1.5rem, 5vw, 5rem);
+}
+
+
+/* ------------------------------------------------------------
+   2. BASE / RESET
+   ------------------------------------------------------------ */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html { -webkit-text-size-adjust: 100%; }
+
+body {
+  margin: 0;
+  background: var(--parchment);
+  color: var(--green);
+  font-family: var(--font-ui);
+  font-weight: 400;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+iframe { display: block; border: 0; }
+
+a { color: inherit; }
+
+
+/* ------------------------------------------------------------
+   3. FOCUS & MOTION
+   ------------------------------------------------------------ */
+:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * { transition-duration: 0.01ms !important; }
+}
+
+
+/* ------------------------------------------------------------
+   4. HERO
+   Full-viewport forest-green field holding the Spline scene,
+   with a quiet Instrument Serif wordmark overlaid top-left.
+   ------------------------------------------------------------ */
+.hero {
+  position: relative;
+  height: 100vh;
+  height: 100svh;        /* avoids mobile URL-bar jump where supported */
+  min-height: 32rem;
+  overflow: hidden;
+  background: var(--green);
+  color: var(--parchment);
+}
+
+/* Scene sits behind the overlay; green background prevents a white
+   flash while the iframe loads (and if it is slow to appear). */
+.hero__scene {
+  position: absolute;
+  inset: 0;
+  background: var(--green);
+}
+
+.hero__scene iframe {
+  width: 100%;
+  height: 100%;
+}
+
+/* Overlay lockup — non-interactive so the 3D scene stays draggable. */
+.hero__masthead {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  padding: var(--gutter);
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  pointer-events: none;
+}
+
+.wordmark {
+  margin: 0;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  line-height: 1;
+  letter-spacing: 0.01em;
+}
+
+/* Overpass in its highway-sign register: wide tracking, small, all-caps. */
+.hero__label {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+/* Quiet scroll cue, bottom-center, with a short hairline above it. */
+.hero__cue {
+  position: absolute;
+  left: 50%;
+  bottom: var(--gutter);
+  transform: translateX(-50%);
+  z-index: 2;
+  margin: 0;
+  padding-top: 2.25rem;
+  font-size: 0.625rem;
+  font-weight: 600;
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.hero__cue::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  width: 1px;
+  height: 1.5rem;
+  background: var(--hairline-light);
+}
+
+
+/* ------------------------------------------------------------
+   5. STATEMENT
+   A single large Instrument Serif line, centered, given room.
+   ------------------------------------------------------------ */
+.statement {
+  display: flex;
+  justify-content: center;
+  padding: clamp(6rem, 18vh, 12rem) var(--gutter);
+}
+
+.statement__text {
+  margin: 0;
+  max-width: 20ch;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 7vw, 5.5rem);
+  line-height: 1.08;
+  text-align: center;
+  text-wrap: balance;
+}
+
+
+/* ------------------------------------------------------------
+   6. CONTACT
+   Email as the primary CTA (editorial, hairline-underlined —
+   not a button), plus quiet social links.
+   ------------------------------------------------------------ */
+.contact {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  padding: clamp(4rem, 10vh, 8rem) var(--gutter);
+  border-top: 1px solid var(--hairline-dark);
+  text-align: center;
+}
+
+/* Shared eyebrow label style (Overpass, wide-tracked small caps). */
+.eyebrow {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.contact__email {
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.75rem);
+  line-height: 1.1;
+  text-decoration: none;
+  padding-bottom: 0.08em;
+  border-bottom: 1px solid var(--hairline-dark);
+  overflow-wrap: anywhere;
+  transition: border-color 160ms ease;
+}
+
+.contact__email:hover,
+.contact__email:focus-visible {
+  border-bottom-color: var(--green);
+}
+
+.contact__social {
+  display: flex;
+  align-items: center;
+  gap: clamp(1.5rem, 4vw, 2.5rem);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact__social a {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  text-decoration: none;
+  padding-bottom: 0.35em;
+  border-bottom: 1px solid transparent;
+  transition: border-color 160ms ease;
+}
+
+.contact__social a:hover,
+.contact__social a:focus-visible {
+  border-bottom-color: var(--green);
+}
+
+
+/* ------------------------------------------------------------
+   7. FOOTER
+   Hairline rule + a single line of small UI type.
+   ------------------------------------------------------------ */
+.footer {
+  display: flex;
+  justify-content: center;
+  padding: 1.75rem var(--gutter);
+  border-top: 1px solid var(--hairline-dark);
+}
+
+.footer__mark {
+  margin: 0;
+  font-size: 0.6875rem;
+  font-weight: 400;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+
+
+/* ------------------------------------------------------------
+   8. RESPONSIVE
+   Base styles are fluid (clamp), so overrides are minimal.
+   ------------------------------------------------------------ */
+@media (max-width: 30rem) {
+  /* Tighten the lockup and drop the scroll cue where space is scarce. */
+  .hero__masthead { gap: 0.25rem; }
+  .hero__cue { display: none; }
+}
