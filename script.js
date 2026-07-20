@@ -7,8 +7,9 @@
         poster live in the HTML; loading the runtime is what upgrades the
         element from the still poster to the live 3D scene.
 
-   Reduced-motion: the runtime is never loaded, so the still poster image
-   remains — an intentional static hero instead of an animated one.
+   On phones, reduced-motion, or constrained connections/devices the
+   runtime is never loaded, so the still poster image remains — an
+   intentional static hero instead of an animated one.
    ============================================================ */
 (function () {
   'use strict';
@@ -23,11 +24,23 @@
   var viewer = document.querySelector('#spline-mount spline-viewer');
   if (!viewer) { return; }
 
-  // Respect reduced-motion: leave the still poster in place, skip the
-  // animated WebGL scene entirely.
-  var reduceMotion = window.matchMedia &&
-    window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduceMotion) { return; }
+  // Only load the heavy (~2.3MB) WebGL runtime where it earns its cost:
+  // a precise pointer (i.e. not a touchscreen), motion allowed, and not a
+  // constrained connection/device. On phones — and anywhere this returns
+  // false — the still poster stands in: no big download, no battery drain,
+  // and no touch-vs-scroll conflict over the canvas.
+  function wantsScene() {
+    var mm = window.matchMedia;
+    if (mm) {
+      if (mm('(prefers-reduced-motion: reduce)').matches) { return false; }
+      if (mm('(pointer: coarse)').matches) { return false; }  // touchscreens
+    }
+    var c = navigator.connection;
+    if (c && (c.saveData || /(?:^|-)2g$/.test(c.effectiveType || ''))) { return false; }
+    if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory < 4) { return false; }
+    return true;
+  }
+  if (!wantsScene()) { return; }
 
   // Pinned runtime. Loading (defining) it upgrades the static <spline-viewer>,
   // which then swaps its inline poster for the live scene.
