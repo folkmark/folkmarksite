@@ -27,6 +27,20 @@
   --hairline-dark:  rgba(29, 60, 46, 0.18);    /* rules on parchment */
   --hairline-light: rgba(247, 244, 238, 0.24); /* rules on green */
 
+  /* Depth shades — a lit lift and a shadowed deep, both derived from the
+     one green (same utility idea as the hairlines, not new hues). */
+  --green-lift: #2C5643;   /* green in light */
+  --green-mid:  #22442F;   /* transition */
+  --green-deep: #132619;   /* green in shadow */
+
+  /* Hero atmosphere: a radial "stage light" behind the mark, sinking to a
+     darker green at the edges for depth. */
+  --hero-field: radial-gradient(135% 108% at 50% 32%,
+    var(--green-lift) 0%, var(--green-mid) 38%, var(--green) 60%, var(--green-deep) 100%);
+
+  /* Fine, desaturated film grain (self-contained SVG) for tactile texture. */
+  --grain: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+
   --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
   --font-ui:      'Overpass', system-ui, -apple-system, Helvetica, Arial, sans-serif;
 
@@ -84,31 +98,44 @@ a { color: inherit; }
   height: 100svh;        /* avoids mobile URL-bar jump where supported */
   min-height: 32rem;
   overflow: hidden;
-  background: var(--green);
+  background: var(--hero-field);   /* radial depth, not a flat fill */
   color: var(--parchment);
 }
 
-/* Scene sits behind the overlay; green background prevents a white
-   flash while the iframe loads (and if it is slow to appear). */
+/* Film-grain texture over the whole field (incl. the scene), under the
+   masthead. Soft-light keeps it a whisper — depth you feel, not see. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background-image: var(--grain);
+  background-size: 170px 170px;
+  opacity: 0.1;
+  mix-blend-mode: soft-light;
+}
+
+/* Scene layer. Transparent (the Spline canvas is set background:transparent)
+   so the hero field's gradient shows through and around the 3D mark. */
 .hero__scene {
   position: absolute;
   inset: 0;
-  background: var(--green);
 }
 
-/* The Spline scene (official <spline-viewer> web component). It starts
-   hidden and fades in on load, so the green field is all that shows until
-   the WebGL scene is ready — no white flash, no loading spinner. */
 .hero__scene spline-viewer {
   display: block;
   width: 100%;
   height: 100%;
-  opacity: 0;
-  transition: opacity 600ms ease;
 }
 
-.hero__scene spline-viewer.is-loaded {
-  opacity: 1;
+/* Inline preview: fills the field until the WebGL runtime replaces it
+   (and is the standing image for reduced-motion / no-JS). */
+.hero__poster {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 /* Overlay lockup — non-interactive so the 3D scene stays draggable. */
