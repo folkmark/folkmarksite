@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Primary meta -->
+  <title>Folkmark</title>
+  <meta name="description" content="Folkmark is a brand and narrative studio — a cultural force for authentic connections.">
+  <meta name="theme-color" content="#1D3C2E">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Folkmark">
+  <meta property="og:description" content="A brand and narrative studio — a cultural force for authentic connections.">
+  <meta property="og:url" content="https://folkmark.com/">
+  <!-- Placeholder OG image: add a 1200×630 og-image.png to the project root. -->
+  <meta property="og:image" content="og-image.png">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Folkmark">
+  <meta name="twitter:description" content="A brand and narrative studio — a cultural force for authentic connections.">
+
+  <!-- Placeholder favicon: inline SVG monogram (no external file, no 404). -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' fill='%231D3C2E'/><text x='16' y='23' font-family='Georgia, serif' font-size='22' fill='%23F7F4EE' text-anchor='middle'>F</text></svg>">
+
+  <!-- Fonts: Instrument Serif (display) + Overpass (UI/body) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Overpass:wght@400;600;700&display=swap">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <!-- ============================================================
+       HERO — full viewport; Spline scene mounts behind the wordmark
+       ============================================================ -->
+  <header class="hero" id="top">
+
+    <!-- Masthead lockup: quiet wordmark + studio descriptor, top-left.
+         pointer-events are disabled in CSS so the 3D scene stays draggable. -->
+    <div class="hero__masthead">
+      <h1 class="wordmark">Folkmark</h1>
+      <p class="hero__label">Brand &amp; Narrative Studio</p>
+    </div>
+
+    <!-- Spline scene mount. Background is forest green (in CSS) so there is
+         no white flash before the iframe is injected by script.js.
+         Decorative, so hidden from assistive tech. -->
+    <div class="hero__scene" id="spline-mount" aria-hidden="true"></div>
+
+    <!-- Quiet scroll cue -->
+    <p class="hero__cue">Scroll</p>
+
+  </header>
+
+  <main>
+
+    <!-- ==========================================================
+         STATEMENT — one editorial positioning line, lots of air
+         ========================================================== -->
+    <section class="statement" aria-labelledby="statement-heading">
+      <h2 class="statement__text" id="statement-heading">A cultural force for authentic connections.</h2>
+    </section>
+
+    <!-- ==========================================================
+         CONTACT — email as the primary call-to-action + socials
+         ========================================================== -->
+    <section class="contact" aria-labelledby="contact-heading">
+      <h2 class="eyebrow" id="contact-heading">Get in touch</h2>
+      <a class="contact__email" href="mailto:hello@folkmark.com">hello@folkmark.com</a>
+      <ul class="contact__social">
+        <li><a href="https://www.linkedin.com/company/folkmark/" target="_blank" rel="noopener">LinkedIn</a></li>
+        <li><a href="https://www.instagram.com/folkmark/" target="_blank" rel="noopener">Instagram</a></li>
+      </ul>
+    </section>
+
+  </main>
+
+  <!-- ============================================================
+       FOOTER — hairline rule + a single line of small UI type
+       ============================================================ -->
+  <footer class="footer">
+    <p class="footer__mark">© <span id="year">2026</span> Folkmark</p>
+  </footer>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
