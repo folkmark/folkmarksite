@@ -52,7 +52,11 @@
   /* Fine, desaturated film grain (self-contained SVG) for tactile texture. */
   --grain: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
 
-  --font-display: 'Instrument Serif', Georgia, 'Times New Roman', serif;
+  /* Type: a thin, high-contrast serif in the Mincho manner, set against
+     an American gothic. The display face is one token — swap in Teodor
+     here (and its @font-face) if it's licensed later. */
+  --font-display: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --display-weight: 200;     /* ExtraLight: hairline, quiet, wide */
   --font-ui:      'Overpass', system-ui, -apple-system, Helvetica, Arial, sans-serif;
 
   /* Fluid page gutter, reused everywhere for consistent rhythm. */
@@ -271,10 +275,10 @@ html.lenis body { height: auto; }
 .wordmark {
   margin: 0;
   font-family: var(--font-display);
-  font-weight: 400;
-  font-size: clamp(1.5rem, 3vw, 2.25rem);
+  font-weight: 300;          /* a touch sturdier at masthead size, on dark */
+  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
   line-height: 1;
-  letter-spacing: 0.01em;
+  letter-spacing: -0.01em;
 }
 
 /* Overpass in its highway-sign register: wide tracking, small, all-caps. */
@@ -379,7 +383,7 @@ html.lenis body { height: auto; }
 
 /* ------------------------------------------------------------
    5. STATEMENT
-   A single large Instrument Serif line, centered, given room.
+   A single large line in the display serif, centered, given room.
    ------------------------------------------------------------ */
 .statement {
   display: flex;
@@ -391,7 +395,7 @@ html.lenis body { height: auto; }
   margin: 0;
   max-width: 20ch;
   font-family: var(--font-display);
-  font-weight: 400;
+  font-weight: var(--display-weight);
   font-size: clamp(2.5rem, 7vw, 5.5rem);
   line-height: 1.08;
   text-align: center;
@@ -408,7 +412,7 @@ html.lenis body { height: auto; }
 .statement .line {
   display: block;
   opacity: calc(1 - var(--a) * 1.15);
-  letter-spacing: calc(-0.005em + var(--a) * 0.08em);
+  letter-spacing: calc(-0.015em + var(--a) * 0.08em);
   transform: translateY(calc(var(--pe) * -12vh));
 }
 
@@ -452,9 +456,9 @@ html.lenis body { height: auto; }
 /* Alternate rails: the middle line travels the other way. */
 .poster__line:nth-child(2) { transform: translateX(calc(var(--pe) * 22vw)); }
 
-/* Italic serif ampersand: the one serif note inside the slab, in the
-   brand's Instrument Serif. */
-.poster__line .amp { font-family: var(--font-display); font-weight: 400; font-style: italic; text-transform: none; }
+/* Italic serif ampersand: the one hairline note inside the slab, in the
+   display serif. */
+.poster__line .amp { font-family: var(--font-display); font-weight: var(--display-weight); font-style: italic; text-transform: none; }
 
 
 /* ------------------------------------------------------------
@@ -483,6 +487,7 @@ html.lenis body { height: auto; }
 
 .contact__email {
   font-family: var(--font-display);
+  font-weight: var(--display-weight);
   font-size: clamp(2rem, 6vw, 3.75rem);
   line-height: 1.1;
   text-decoration: none;
