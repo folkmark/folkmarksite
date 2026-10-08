@@ -1,11 +1,11 @@
 /* ============================================================
    FOLKMARK — script.js
-   Two small jobs:
+   Three small jobs:
      1. Keep the footer year current.
-     2. Lazy-load the interactive 3D mark (logo3d.js + self-hosted
-        three.js) so first paint stays fast. The still render of the mark
-        lives in the HTML; once the live canvas has drawn its first frame
-        it fades in over it.
+     2. Track how far the hero has scrolled, for the ridge/fog parallax.
+     3. Lazy-load the interactive 3D mark (logo3d.js + self-hosted
+        three.js) so first paint stays fast. On capable desktops it rises
+        out of the fog; everywhere else the still render stands in.
 
    On phones, reduced-motion, or constrained connections/devices the
    3D code is never loaded, so the still image remains — an intentional
@@ -20,31 +20,43 @@
     yearEl.textContent = new Date().getFullYear();
   }
 
-  /* ---- Lazy 3D mark ----------------------------------------------- */
-  var mountEl = document.getElementById('logo-mount');
-  if (!mountEl) { return; }
-
-  // Only load WebGL where it earns its cost: a precise pointer (i.e. not a
-  // touchscreen), motion allowed, and not a constrained connection/device.
-  // On phones — and anywhere this returns false — the still image stands
-  // in: no extra download, no battery drain, no touch-vs-scroll conflict.
-  function wantsScene() {
-    var mm = window.matchMedia;
-    if (mm) {
-      if (mm('(prefers-reduced-motion: reduce)').matches) { return false; }
-      if (mm('(pointer: coarse)').matches) { return false; }  // touchscreens
-    }
-    var c = navigator.connection;
-    if (c && (c.saveData || /(?:^|-)2g$/.test(c.effectiveType || ''))) { return false; }
-    if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory < 4) { return false; }
-    return true;
+  /* ---- Hero scroll depth ------------------------------------------ */
+  // Exposes how far the hero has scrolled away (0–1) as --hero-scroll, so
+  // the ridges and fog can part at different speeds (CSS does the rest).
+  var hero = document.querySelector('.hero');
+  if (hero) {
+    var ticking = false;
+    var update = function () {
+      ticking = false;
+      var p = Math.min(Math.max(window.scrollY / (hero.offsetHeight || 1), 0), 1);
+      hero.style.setProperty('--hero-scroll', p.toFixed(3));
+    };
+    window.addEventListener('scroll', function () {
+      if (!ticking) { ticking = true; requestAnimationFrame(update); }
+    }, { passive: true });
+    update();
   }
-  if (!wantsScene()) { return; }
+
+  /* ---- Lazy 3D mark ----------------------------------------------- */
+  // The inline script in <head> decides whether this device gets WebGL
+  // (precise pointer, motion allowed, not a constrained device) and marks
+  // <html class="has-3d">. Everywhere else the still image stands in: no
+  // extra download, no battery drain, no touch-vs-scroll conflict.
+  var root = document.documentElement;
+  var mountEl = document.getElementById('logo-mount');
+  if (!mountEl || !root.classList.contains('has-3d')) { return; }
+
+  // If the 3D mark can't start (no WebGL, blocked script), drop back to
+  // the still rather than leaving an empty hero.
+  function fallBack() { root.classList.remove('has-3d'); }
+  setTimeout(function () {
+    if (!mountEl.classList.contains('is-live')) { fallBack(); }
+  }, 6000);
 
   function loadScene() {
     import('./logo3d.js')
       .then(function (m) { m.mount(mountEl); })
-      .catch(function () { /* WebGL unavailable: the still image stays */ });
+      .catch(fallBack);
   }
 
   // Wait until the page has loaded, then load on the next idle frame

@@ -17,7 +17,7 @@
 
 /* ------------------------------------------------------------
    1. DESIGN TOKENS
-   Two brand colors only. The hairline shades are translucent
+   Two brand colors only. The hairline and depth shades are
    tints of those same two colors (a utility, not a 3rd hue).
    ------------------------------------------------------------ */
 :root {
@@ -33,10 +33,24 @@
   --green-mid:  #22442F;   /* transition */
   --green-deep: #132619;   /* green in shadow */
 
-  /* Hero atmosphere: a radial "stage light" behind the mark, sinking to a
-     darker green at the edges for depth. */
-  --hero-field: radial-gradient(135% 108% at 50% 32%,
-    var(--green-lift) 0%, var(--green-mid) 38%, var(--green) 60%, var(--green-deep) 100%);
+  /* Night shades — the same green after dark, for the hero. */
+  --green-night: #0A1510;  /* green at night */
+  --green-black: #050B08;  /* the darkest the hero gets */
+
+  /* Hero atmosphere: after dark. A dim pool of green light behind the
+     mark, a cold haze high on the right, a faint warmth low on the left
+     where the lantern light comes from, and the edges falling away to
+     near-black. Mood, not scenery. */
+  --hero-field:
+    radial-gradient(30% 26% at 78% 14%, rgba(214, 228, 220, 0.10), transparent 70%),
+    radial-gradient(40% 36% at 20% 88%, rgba(255, 166, 92, 0.07), transparent 70%),
+    linear-gradient(to bottom, transparent 50%, rgba(120, 150, 134, 0.10) 70%, transparent 88%),
+    radial-gradient(110% 85% at 50% 38%,
+      #1F3B2F 0%, #152D21 28%, #0E1E16 52%, var(--green-night) 74%, var(--green-black) 100%);
+
+  /* Valley fog: soft, clumpy fractal noise in a cool green-grey, as a
+     horizontally tiling strip (stitchTiles keeps the seam invisible). */
+  --fog: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'><filter id='f' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.0032 0.012' numOctaves='4' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.82  0 0 0 0 0.88  0 0 0 0 0.85  0 0 0 1.7 -0.6'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>");
 
   /* Fine, desaturated film grain (self-contained SVG) for tactile texture. */
   --grain: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
@@ -89,8 +103,12 @@ a { color: inherit; }
 
 /* ------------------------------------------------------------
    4. HERO
-   Full-viewport forest-green field holding the 3D mark,
-   with a quiet Instrument Serif wordmark overlaid top-left.
+   After dark: a near-black green field, slow haze drifting through,
+   and the 3D mark rising out of it under moonlight and a guttering
+   lantern. Old-film grain and a burned-in vignette tie it to the
+   19th-century print register of the type. Layers, back to front:
+     field → back haze → mark → front haze → vignette (::before)
+     → grain (::after) → type
    ------------------------------------------------------------ */
 .hero {
   position: relative;
@@ -98,28 +116,80 @@ a { color: inherit; }
   height: 100svh;        /* avoids mobile URL-bar jump where supported */
   min-height: 32rem;
   overflow: hidden;
-  background: var(--hero-field);   /* radial depth, not a flat fill */
+  isolation: isolate;
+  background: var(--green-black);
+  background-image: var(--hero-field);
   color: var(--parchment);
+  --hero-scroll: 0;      /* 0–1, set by script.js as the hero scrolls away */
 }
 
-/* Film-grain texture over the whole field (incl. the scene), under the
-   masthead. Soft-light keeps it a whisper — depth you feel, not see. */
-.hero::after {
+/* Vignette: the edges of the frame burn down, like an old plate print,
+   with a slow, uneven projector flicker. */
+.hero::before {
   content: "";
   position: absolute;
   inset: 0;
-  z-index: 1;
+  z-index: 3;
+  pointer-events: none;
+  background:
+    radial-gradient(120% 95% at 50% 45%, transparent 48%, rgba(3, 7, 5, 0.72) 100%),
+    linear-gradient(to bottom, rgba(3, 7, 5, 0.45), transparent 22%);
+  animation: projector 7s steps(1, end) infinite;
+}
+
+/* Film grain over everything but the type, jittering a few times a
+   second so it reads as moving film rather than a texture. */
+.hero::after {
+  content: "";
+  position: absolute;
+  inset: -10%;
+  z-index: 4;
   pointer-events: none;
   background-image: var(--grain);
   background-size: 170px 170px;
-  opacity: 0.1;
+  opacity: 0.16;
   mix-blend-mode: soft-light;
+  animation: grain 0.8s steps(1, end) infinite;
 }
 
-/* Scene layer. The 3D canvas is transparent, so the hero field's gradient
-   shows through and around the mark. */
+/* Haze: a wide strip of tiling mist, twice the hero's width, slid
+   half its width so the loop is seamless. Masked into a soft band. */
+.hero__fog {
+  position: absolute;
+  left: 0;
+  width: 200%;
+  pointer-events: none;
+  background-image: var(--fog);
+  background-repeat: repeat-x;
+  background-size: 50% 100%;
+  -webkit-mask-image: linear-gradient(to top, transparent 0%, #000 22%, #000 48%, transparent 100%);
+          mask-image: linear-gradient(to top, transparent 0%, #000 22%, #000 48%, transparent 100%);
+}
+
+.hero__fog--back {
+  z-index: 0;
+  bottom: 4%;
+  height: 52%;
+  opacity: 0.2;
+  animation: fog-drift 140s linear infinite;
+  translate: 0 calc(var(--hero-scroll) * 10%);
+}
+
+/* The low bank in front of the mark: the bottom swash wades in it. */
+.hero__fog--front {
+  z-index: 2;
+  bottom: -6%;
+  height: 40%;
+  opacity: 0.26;
+  animation: fog-drift 90s linear infinite reverse;
+  translate: 0 calc(var(--hero-scroll) * -12%);
+}
+
+/* Scene layer. The 3D canvas is transparent, so the night field
+   and fog show through and around the mark. */
 .hero__scene {
   position: absolute;
+  z-index: 1;
   inset: 0;
   cursor: grab;
   touch-action: pan-y;    /* vertical swipes still scroll the page */
@@ -142,7 +212,8 @@ a { color: inherit; }
 
 /* Still render of the mark, framed to match the live canvas exactly
    (56% of the hero's height, pulling back on narrow screens). It's the
-   standing image for phones / reduced-motion / no-JS. */
+   standing image for phones / reduced-motion / no-JS, and rises out of
+   the fog on load just as the live mark does. */
 .hero__poster {
   position: absolute;
   left: 50%;
@@ -154,8 +225,12 @@ a { color: inherit; }
   user-select: none;
   -webkit-user-drag: none;
   transition: opacity 600ms ease;
+  animation: rise 2.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
 }
 
+/* Where the live mark is coming, keep the still out of the way so it
+   doesn't flash before the mark rises. */
+.has-3d .hero__poster,
 .hero__scene.is-live .hero__poster { opacity: 0; }
 
 /* On touchscreens the scene never captures input, so a swipe over the
@@ -169,12 +244,13 @@ a { color: inherit; }
   position: absolute;
   top: 0;
   left: 0;
-  z-index: 2;
+  z-index: 5;
   padding: var(--gutter);
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
   pointer-events: none;
+  animation: surface 1.8s 0.6s ease-out both;
 }
 
 .wordmark {
@@ -196,13 +272,13 @@ a { color: inherit; }
   opacity: 0.85;
 }
 
-/* Quiet scroll cue, bottom-center, with a short hairline above it. */
+/* Quiet scroll cue, bottom-center; its hairline slowly drips downward. */
 .hero__cue {
   position: absolute;
   left: 50%;
   bottom: var(--gutter);
   transform: translateX(-50%);
-  z-index: 2;
+  z-index: 5;
   margin: 0;
   padding-top: 2.25rem;
   font-size: 0.625rem;
@@ -211,6 +287,7 @@ a { color: inherit; }
   text-transform: uppercase;
   opacity: 0.7;
   pointer-events: none;
+  animation: surface 1.8s 1.4s ease-out both;
 }
 
 .hero__cue::before {
@@ -221,6 +298,59 @@ a { color: inherit; }
   width: 1px;
   height: 1.5rem;
   background: var(--hairline-light);
+  transform-origin: top;
+  animation: drip 3.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
+}
+
+/* ---- Hero motion ------------------------------------------------- */
+@keyframes fog-drift {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+/* Fades use filter: opacity() so they stack with each element's own
+   opacity (and the still's hide/show rules) instead of overriding it. */
+@keyframes rise {
+  from { filter: opacity(0); translate: 0 9%; }
+  to   { filter: opacity(1); translate: 0 0; }
+}
+
+@keyframes surface {
+  from { filter: opacity(0); }
+  to   { filter: opacity(1); }
+}
+
+@keyframes drip {
+  0%   { transform: scaleY(0); opacity: 1; }
+  55%  { transform: scaleY(1); opacity: 1; }
+  100% { transform: scaleY(1); opacity: 0; }
+}
+
+@keyframes projector {
+  0%, 100% { opacity: 1; }
+  31%      { opacity: 0.9; }
+  33%      { opacity: 1; }
+  68%      { opacity: 0.93; }
+  70%      { opacity: 1; }
+  71%      { opacity: 0.88; }
+  72%      { opacity: 1; }
+}
+
+@keyframes grain {
+  0%   { transform: translate(0, 0); }
+  17%  { transform: translate(-3%, 2%); }
+  33%  { transform: translate(2%, -4%); }
+  50%  { transform: translate(-4%, -1%); }
+  67%  { transform: translate(3%, 3%); }
+  83%  { transform: translate(-1%, 4%); }
+}
+
+/* Reduced motion: keep the scene, hold everything still. */
+@media (prefers-reduced-motion: reduce) {
+  .hero::before,
+  .hero::after,
+  .hero *,
+  .hero *::before { animation: none !important; }
 }
 
 

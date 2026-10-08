@@ -7,7 +7,7 @@
   <!-- Primary meta -->
   <title>Folkmark</title>
   <meta name="description" content="Folkmark is a brand and narrative studio — a cultural force for authentic connections.">
-  <meta name="theme-color" content="#1D3C2E">
+  <meta name="theme-color" content="#0A1510">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -31,6 +31,22 @@
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Overpass:wght@400;600;700&display=swap">
 
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Decide up front whether this device gets the live 3D mark, so the
+       still can stay hidden while the mark rises out of the fog instead of
+       flashing first. Phones, reduced-motion and constrained devices keep
+       the still (and so does no-JS, since this never runs). -->
+  <script>
+    (function () {
+      try {
+        var mm = window.matchMedia, c = navigator.connection, ok = true;
+        if (mm && (mm('(prefers-reduced-motion: reduce)').matches || mm('(pointer: coarse)').matches)) { ok = false; }
+        if (c && (c.saveData || /(?:^|-)2g$/.test(c.effectiveType || ''))) { ok = false; }
+        if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory < 4) { ok = false; }
+        if (ok) { document.documentElement.classList.add('has-3d'); }
+      } catch (e) {}
+    }());
+  </script>
 </head>
 <body>
 
@@ -46,14 +62,18 @@
       <p class="hero__label">Brand &amp; Narrative Studio</p>
     </div>
 
-    <!-- 3D mark mount. The hero field (gradient + grain, in CSS) shows
-         through the transparent canvas, so there is never a white flash.
-         Decorative, so hidden from assistive tech. script.js lazily loads
-         the native three.js mark (logo3d.js); until then — and for phones,
-         reduced-motion and no-JS — the still render below stands in. -->
+    <!-- Atmosphere: haze drifting behind the mark, the mark, then a
+         low bank drifting in front of it. Decorative (aria-hidden). -->
+    <div class="hero__fog hero__fog--back" aria-hidden="true"></div>
+
+    <!-- 3D mark mount. script.js lazily loads the native three.js mark
+         (logo3d.js); until then — and for phones, reduced-motion and
+         no-JS — the still render below stands in. -->
     <div class="hero__scene" id="logo-mount" aria-hidden="true">
       <img class="hero__poster" src="logo-mark.webp" alt="" width="908" height="900" decoding="async" fetchpriority="high">
     </div>
+
+    <div class="hero__fog hero__fog--front" aria-hidden="true"></div>
 
     <!-- Quiet scroll cue -->
     <p class="hero__cue">Scroll</p>
