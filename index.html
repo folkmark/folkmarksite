@@ -28,7 +28,7 @@
   <!-- Fonts: Instrument Serif (display) + Overpass (UI/body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Overpass:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Overpass:wght@400;600;700;800&display=swap">
 
   <link rel="stylesheet" href="styles.css">
 
@@ -93,6 +93,19 @@
     </section>
 
     <!-- ==========================================================
+         POSTER — the studio's name for itself at billboard scale, in
+         Overpass at its heaviest: the industrial counterweight to the
+         serif. Each line slides in along its own rail as it scrolls by.
+         ========================================================== -->
+    <section class="poster" aria-label="Brand and narrative studio">
+      <p class="poster__type">
+        <span class="poster__line" data-scroll>Brand <span class="amp">&amp;</span></span>
+        <span class="poster__line" data-scroll>Narrative</span>
+        <span class="poster__line" data-scroll>Studio</span>
+      </p>
+    </section>
+
+    <!-- ==========================================================
          CONTACT — email as the single call-to-action
          ========================================================== -->
     <section class="contact" aria-labelledby="contact-heading">
@@ -109,6 +122,9 @@
     <p class="footer__mark">© <span id="year">2026</span> Folkmark</p>
   </footer>
 
+  <!-- Lenis (self-hosted, MIT): weighted smooth scrolling. script.js only
+       starts it for fine pointers with motion allowed. -->
+  <script src="vendor/lenis.min.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>

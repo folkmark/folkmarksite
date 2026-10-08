@@ -84,6 +84,12 @@ iframe { display: block; border: 0; }
 
 a { color: inherit; }
 
+/* Lenis smooth scrolling (its recommended base rules). */
+html.lenis,
+html.lenis body { height: auto; }
+.lenis.lenis-stopped { overflow: clip; }
+.lenis.lenis-smooth iframe { pointer-events: none; }
+
 /* Scroll progress (see script.js). Defaults keep everything at rest —
    which is exactly what reduced-motion and no-JS visitors get.
    --a is |--pe|: how far from rest, whichever direction. */
@@ -405,6 +411,50 @@ a { color: inherit; }
   letter-spacing: calc(-0.005em + var(--a) * 0.08em);
   transform: translateY(calc(var(--pe) * -12vh));
 }
+
+
+/* ------------------------------------------------------------
+   5b. POSTER
+   The studio's name at billboard scale: Overpass at its heaviest,
+   all-caps and tight, like a painted wall sign or a railroad car.
+   Type size is set so the longest line ("Narrative", 9 letters)
+   fills the measure at any width. Each line runs on its own rail
+   in alternating directions, arriving flush and leaving again on
+   the same -1 → 0 → 1 curve. Hairline rules frame it like a plate.
+   ------------------------------------------------------------ */
+.poster {
+  overflow: hidden;           /* rails run past the edges */
+  padding: clamp(4rem, 12vh, 9rem) var(--gutter);
+  border-top: 1px solid var(--hairline-dark);
+}
+
+.poster__type {
+  margin: 0;
+  font-family: var(--font-ui);
+  font-weight: 800;
+  /* "NARRATIVE" in Overpass 800 at this tracking measures ~5.45em;
+     dividing the content width (viewport minus both gutters) by 5.6
+     makes it fill the measure with a hair to spare. */
+  font-size: clamp(3rem, calc((100vw - 2 * var(--gutter)) / 5.6), 15rem);
+  line-height: 0.86;
+  letter-spacing: -0.02em;
+  text-transform: uppercase;
+  text-align: center;
+}
+
+.poster__line {
+  display: block;
+  white-space: nowrap;
+  opacity: calc(1 - var(--a) * 0.9);
+  transform: translateX(calc(var(--pe) * -22vw));
+}
+
+/* Alternate rails: the middle line travels the other way. */
+.poster__line:nth-child(2) { transform: translateX(calc(var(--pe) * 22vw)); }
+
+/* Italic serif ampersand: the one serif note inside the slab, in the
+   brand's Instrument Serif. */
+.poster__line .amp { font-family: var(--font-display); font-weight: 400; font-style: italic; text-transform: none; }
 
 
 /* ------------------------------------------------------------

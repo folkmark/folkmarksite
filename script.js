@@ -2,8 +2,9 @@
    FOLKMARK — script.js
    Three small jobs:
      1. Keep the footer year current.
-     2. Scroll progress: give each [data-scroll] element a smoothed
-        -1 → 0 → 1 value that CSS turns into motion.
+     2. Scroll: weighted smooth scrolling (Lenis) on desktop, and a
+        smoothed -1 → 0 → 1 progress value on each [data-scroll] element
+        that CSS turns into motion.
      3. Lazy-load the interactive 3D mark (logo3d.js + self-hosted
         three.js) so first paint stays fast. On capable desktops it rises
         out of the haze; everywhere else the still render stands in.
@@ -35,6 +36,16 @@
   // rests at 0 (the CSS defaults).
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var tracked = [].slice.call(document.querySelectorAll('[data-scroll]'));
+
+  // Weighted smooth scrolling (Lenis, self-hosted) for mouse and trackpad
+  // only: touch keeps the phone's own native scrolling, and reduced motion
+  // keeps the browser's. Lenis still moves the real scroll position, so
+  // everything below just listens to ordinary scroll events.
+  var lenis = null;
+  var finePointer = window.matchMedia && window.matchMedia('(pointer: fine)').matches;
+  if (!reduce && finePointer && window.Lenis) {
+    lenis = new window.Lenis({ autoRaf: true, lerp: 0.085, wheelMultiplier: 0.9, anchors: true });
+  }
 
   if (!reduce && tracked.length) {
     var items = tracked.map(function (el) { return { el: el, p: null, target: 0 }; });
@@ -73,7 +84,9 @@
       var dt = Math.min((now - last) / 1000 || 0.016, 0.05);
       last = now;
       measure();
-      var k = 1 - Math.exp(-dt * 7);   // smoothing: higher = tighter
+      // Smoothing (higher = tighter). With Lenis the scroll itself already
+      // glides, so follow it closely rather than stacking a second lag.
+      var k = 1 - Math.exp(-dt * (lenis ? 18 : 7));
       var moving = false;
       items.forEach(function (it) {
         var d = it.target - it.p;
