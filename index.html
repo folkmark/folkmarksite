@@ -53,7 +53,7 @@
   <!-- ============================================================
        HERO — full viewport; the 3D mark sits behind the wordmark
        ============================================================ -->
-  <header class="hero" id="top">
+  <header class="hero" id="top" data-scroll>
 
     <!-- Masthead lockup: quiet wordmark + studio descriptor, top-left.
          pointer-events are disabled in CSS so the 3D scene stays draggable. -->
@@ -86,15 +86,18 @@
          STATEMENT — one editorial positioning line, lots of air
          ========================================================== -->
     <section class="statement" aria-labelledby="statement-heading">
-      <h2 class="statement__text" id="statement-heading">A cultural force for authentic connections.</h2>
+      <h2 class="statement__text" id="statement-heading">
+        <span class="line" data-scroll>A cultural force for</span>
+        <span class="line" data-scroll><em>authentic</em> connections.</span>
+      </h2>
     </section>
 
     <!-- ==========================================================
          CONTACT — email as the single call-to-action
          ========================================================== -->
     <section class="contact" aria-labelledby="contact-heading">
-      <h2 class="eyebrow" id="contact-heading">Get in touch</h2>
-      <a class="contact__email" href="mailto:hello@folkmark.com">hello@folkmark.com</a>
+      <h2 class="eyebrow" id="contact-heading" data-scroll>Get in touch</h2>
+      <a class="contact__email" href="mailto:hello@folkmark.com" data-scroll>hello@folkmark.com</a>
     </section>
 
   </main>

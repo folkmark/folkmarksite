@@ -2,10 +2,11 @@
    FOLKMARK — script.js
    Three small jobs:
      1. Keep the footer year current.
-     2. Track how far the hero has scrolled, for the ridge/fog parallax.
+     2. Scroll progress: give each [data-scroll] element a smoothed
+        -1 → 0 → 1 value that CSS turns into motion.
      3. Lazy-load the interactive 3D mark (logo3d.js + self-hosted
         three.js) so first paint stays fast. On capable desktops it rises
-        out of the fog; everywhere else the still render stands in.
+        out of the haze; everywhere else the still render stands in.
 
    On phones, reduced-motion, or constrained connections/devices the
    3D code is never loaded, so the still image remains — an intentional
@@ -20,21 +21,79 @@
     yearEl.textContent = new Date().getFullYear();
   }
 
-  /* ---- Hero scroll depth ------------------------------------------ */
-  // Exposes how far the hero has scrolled away (0–1) as --hero-scroll, so
-  // the ridges and fog can part at different speeds (CSS does the rest).
-  var hero = document.querySelector('.hero');
-  if (hero) {
-    var ticking = false;
-    var update = function () {
-      ticking = false;
-      var p = Math.min(Math.max(window.scrollY / (hero.offsetHeight || 1), 0), 1);
-      hero.style.setProperty('--hero-scroll', p.toFixed(3));
+  /* ---- Scroll progress: -1 → 0 → 1 -------------------------------- */
+  // Every [data-scroll] element gets two custom properties, smoothed
+  // toward the true scroll position each frame so motion glides rather
+  // than stepping with the wheel (native scrolling is left untouched):
+  //   --p   linear progress: -1 entering from below, 0 centred in the
+  //         viewport, 1 leaving off the top
+  //   --pe  the same, eased — it holds at 0 around the centre (so type
+  //         is still while it's being read) and eases out at both ends
+  // CSS maps these to transforms and opacity, so one continuous curve
+  // drives each element in, holds it, and carries it out — no separate
+  // enter and exit animations. Reduced motion: never set, so everything
+  // rests at 0 (the CSS defaults).
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var tracked = [].slice.call(document.querySelectorAll('[data-scroll]'));
+
+  if (!reduce && tracked.length) {
+    var items = tracked.map(function (el) { return { el: el, p: null, target: 0 }; });
+    var running = false;
+    var last = 0;
+
+    var measure = function () {
+      var vh = window.innerHeight;
+      var room = document.documentElement.scrollHeight - vh - window.scrollY;
+      items.forEach(function (it) {
+        var r = it.el.getBoundingClientRect();
+        var span = (vh + r.height) / 2;
+        var t = (vh / 2 - (r.top + r.height / 2)) / span;
+        // Near the foot of the page an element may never reach the centre.
+        // Where it will end up at full scroll is its "rest": remap the
+        // entering half so it arrives at 0 exactly as the page bottoms out.
+        var atEnd = t + Math.max(room, 0) / span;
+        if (atEnd < 0) { t = t >= atEnd ? 0 : -1 + (t + 1) / (atEnd + 1); }
+        it.target = Math.min(Math.max(t, -1), 1);
+        if (it.p === null) { it.p = it.target; }   // first paint: no glide
+      });
     };
-    window.addEventListener('scroll', function () {
-      if (!ticking) { ticking = true; requestAnimationFrame(update); }
-    }, { passive: true });
-    update();
+
+    // Ease with a held centre: flat through |p| < 0.12, smoothstep after.
+    var eased = function (p) {
+      var x = Math.min(Math.max((Math.abs(p) - 0.12) / 0.88, 0), 1);
+      return (p < 0 ? -1 : 1) * x * x * (3 - 2 * x);
+    };
+
+    var write = function (it) {
+      it.el.style.setProperty('--p', it.p.toFixed(4));
+      it.el.style.setProperty('--pe', eased(it.p).toFixed(4));
+    };
+
+    var tick = function (now) {
+      var dt = Math.min((now - last) / 1000 || 0.016, 0.05);
+      last = now;
+      measure();
+      var k = 1 - Math.exp(-dt * 7);   // smoothing: higher = tighter
+      var moving = false;
+      items.forEach(function (it) {
+        var d = it.target - it.p;
+        if (Math.abs(d) > 0.0004) { it.p += d * k; moving = true; } else { it.p = it.target; }
+        write(it);
+      });
+      if (moving) { requestAnimationFrame(tick); } else { running = false; }
+    };
+
+    var kick = function () {
+      if (running) { return; }
+      running = true;
+      last = performance.now();
+      requestAnimationFrame(tick);
+    };
+
+    measure();
+    items.forEach(write);
+    window.addEventListener('scroll', kick, { passive: true });
+    window.addEventListener('resize', kick);
   }
 
   /* ---- Lazy 3D mark ----------------------------------------------- */

@@ -37,20 +37,17 @@
   --green-night: #0A1510;  /* green at night */
   --green-black: #050B08;  /* the darkest the hero gets */
 
-  /* Hero atmosphere: after dark. A dim pool of green light behind the
-     mark, a cold haze high on the right, a faint warmth low on the left
-     where the lantern light comes from, and the edges falling away to
-     near-black. Mood, not scenery. */
+  /* Hero atmosphere: after dark, in the brand's two colors only. A dim
+     pool of green light behind the mark, a faint parchment haze low in
+     the frame, and the edges falling away to near-black green. */
   --hero-field:
-    radial-gradient(30% 26% at 78% 14%, rgba(214, 228, 220, 0.10), transparent 70%),
-    radial-gradient(40% 36% at 20% 88%, rgba(255, 166, 92, 0.07), transparent 70%),
-    linear-gradient(to bottom, transparent 50%, rgba(120, 150, 134, 0.10) 70%, transparent 88%),
+    linear-gradient(to bottom, transparent 50%, rgba(247, 244, 238, 0.05) 72%, transparent 90%),
     radial-gradient(110% 85% at 50% 38%,
       #1F3B2F 0%, #152D21 28%, #0E1E16 52%, var(--green-night) 74%, var(--green-black) 100%);
 
-  /* Valley fog: soft, clumpy fractal noise in a cool green-grey, as a
-     horizontally tiling strip (stitchTiles keeps the seam invisible). */
-  --fog: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'><filter id='f' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.0032 0.012' numOctaves='4' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.82  0 0 0 0 0.88  0 0 0 0 0.85  0 0 0 1.7 -0.6'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>");
+  /* Haze: soft, clumpy fractal noise in parchment, as a horizontally
+     tiling strip (stitchTiles keeps the seam invisible). */
+  --fog: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='400'><filter id='f' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.0032 0.012' numOctaves='4' seed='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.97  0 0 0 0 0.96  0 0 0 0 0.93  0 0 0 1.7 -0.6'/></filter><rect width='100%25' height='100%25' filter='url(%23f)'/></svg>");
 
   /* Fine, desaturated film grain (self-contained SVG) for tactile texture. */
   --grain: url("data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
@@ -87,6 +84,15 @@ iframe { display: block; border: 0; }
 
 a { color: inherit; }
 
+/* Scroll progress (see script.js). Defaults keep everything at rest —
+   which is exactly what reduced-motion and no-JS visitors get.
+   --a is |--pe|: how far from rest, whichever direction. */
+[data-scroll] {
+  --p: 0;
+  --pe: 0;
+  --a: max(var(--pe), calc(var(--pe) * -1));
+}
+
 
 /* ------------------------------------------------------------
    3. FOCUS & MOTION
@@ -120,7 +126,7 @@ a { color: inherit; }
   background: var(--green-black);
   background-image: var(--hero-field);
   color: var(--parchment);
-  --hero-scroll: 0;      /* 0–1, set by script.js as the hero scrolls away */
+  --p: 0;                /* scroll progress, 0 at rest → 1 leaving (script.js) */
 }
 
 /* Vignette: the edges of the frame burn down, like an old plate print,
@@ -172,7 +178,7 @@ a { color: inherit; }
   height: 52%;
   opacity: 0.2;
   animation: fog-drift 140s linear infinite;
-  translate: 0 calc(var(--hero-scroll) * 10%);
+  translate: 0 calc(var(--p) * 10%);
 }
 
 /* The low bank in front of the mark: the bottom swash wades in it. */
@@ -182,7 +188,7 @@ a { color: inherit; }
   height: 40%;
   opacity: 0.26;
   animation: fog-drift 90s linear infinite reverse;
-  translate: 0 calc(var(--hero-scroll) * -12%);
+  translate: 0 calc(var(--p) * -12%);
 }
 
 /* Scene layer. The 3D canvas is transparent, so the night field
@@ -225,7 +231,10 @@ a { color: inherit; }
   user-select: none;
   -webkit-user-drag: none;
   transition: opacity 600ms ease;
-  animation: rise 2.8s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  /* Follows the hero out on scroll (the live mark does the same in 3D).
+     The rise only fills backwards, so once it ends this takes over. */
+  translate: 0 calc(var(--p) * -28%);
+  animation: rise 2.8s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
 }
 
 /* Where the live mark is coming, keep the still out of the way so it
@@ -302,6 +311,14 @@ a { color: inherit; }
   animation: drip 3.2s cubic-bezier(0.6, 0, 0.3, 1) infinite;
 }
 
+/* As the hero leaves (--p 0 → 1) the type lifts away ahead of the mark. */
+.hero__masthead {
+  opacity: calc(1 - var(--p) * 2.2);
+  translate: 0 calc(var(--p) * -6rem);
+}
+
+.hero__cue { opacity: calc(0.7 - var(--p) * 4); }
+
 /* ---- Hero motion ------------------------------------------------- */
 @keyframes fog-drift {
   from { transform: translateX(0); }
@@ -375,6 +392,20 @@ a { color: inherit; }
   text-wrap: balance;
 }
 
+/* Italic for the one word that carries the line. */
+.statement__text em { font-style: italic; }
+
+/* Each line rides its own -1 → 0 → 1 curve: it rises in from below with
+   loose tracking, settles tight and still while it's read, then keeps
+   rising and loosens as it leaves. The second line trails the first
+   simply because it sits lower — no delays to tune. */
+.statement .line {
+  display: block;
+  opacity: calc(1 - var(--a) * 1.15);
+  letter-spacing: calc(-0.005em + var(--a) * 0.08em);
+  transform: translateY(calc(var(--pe) * -12vh));
+}
+
 
 /* ------------------------------------------------------------
    6. CONTACT
@@ -415,6 +446,17 @@ a { color: inherit; }
 .contact__email:focus-visible {
   border-bottom-color: var(--green);
 }
+
+/* Contact rides the same curve, gentler: the label leads, the address
+   follows. */
+.contact .eyebrow,
+.contact__email {
+  opacity: calc(1 - var(--a) * 1.1);
+  transform: translateY(calc(var(--pe) * -6vh));
+}
+
+.contact .eyebrow { letter-spacing: calc(0.24em + var(--a) * 0.16em); }
+
 
 /* ------------------------------------------------------------
    7. FOOTER
