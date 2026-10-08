@@ -274,11 +274,27 @@ html.lenis body { height: auto; }
 
 .wordmark {
   margin: 0;
-  font-family: var(--font-display);
-  font-weight: 300;          /* a touch sturdier at masthead size, on dark */
-  font-size: clamp(1.6rem, 3.2vw, 2.4rem);
-  line-height: 1;
-  letter-spacing: -0.01em;
+  line-height: 0;
+}
+
+/* The logotype, drawn in currentColor so it follows the masthead. Its
+   painted F hangs below the baseline, so the box is taller than the
+   lowercase alone. */
+.wordmark__logo {
+  display: block;
+  width: clamp(8.5rem, 15vw, 12.5rem);
+  height: auto;
+}
+
+/* Text kept for assistive tech and search, hidden visually. */
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 /* Overpass in its highway-sign register: wide tracking, small, all-caps. */
