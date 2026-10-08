@@ -89,7 +89,7 @@ a { color: inherit; }
 
 /* ------------------------------------------------------------
    4. HERO
-   Full-viewport forest-green field holding the Spline scene,
+   Full-viewport forest-green field holding the 3D mark,
    with a quiet Instrument Serif wordmark overlaid top-left.
    ------------------------------------------------------------ */
 .hero {
@@ -116,32 +116,52 @@ a { color: inherit; }
   mix-blend-mode: soft-light;
 }
 
-/* Scene layer. Transparent (the Spline canvas is set background:transparent)
-   so the hero field's gradient shows through and around the 3D mark. */
+/* Scene layer. The 3D canvas is transparent, so the hero field's gradient
+   shows through and around the mark. */
 .hero__scene {
   position: absolute;
   inset: 0;
+  cursor: grab;
+  touch-action: pan-y;    /* vertical swipes still scroll the page */
 }
 
-.hero__scene spline-viewer {
+.hero__scene.is-dragging { cursor: grabbing; }
+
+/* Live canvas: fades in over the still once its first frame is drawn. */
+.hero__canvas {
+  position: absolute;
+  inset: 0;
   display: block;
   width: 100%;
   height: 100%;
+  opacity: 0;
+  transition: opacity 600ms ease;
 }
 
-/* Inline preview: fills the field until the WebGL runtime replaces it
-   (and is the standing image for phones / reduced-motion / no-JS). */
+.hero__scene.is-live .hero__canvas { opacity: 1; }
+
+/* Still render of the mark, framed to match the live canvas exactly
+   (56% of the hero's height, pulling back on narrow screens). It's the
+   standing image for phones / reduced-motion / no-JS. */
 .hero__poster {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: absolute;
+  left: 50%;
+  top: 49.2%;
+  height: min(56.25%, 51vw);
+  width: auto;
+  transform: translate(-50%, -50%);
   display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+  transition: opacity 600ms ease;
 }
 
-/* On touchscreens the scene never captures input — even if it somehow
-   loads — so a swipe over the hero scrolls instead of orbiting the mark. */
+.hero__scene.is-live .hero__poster { opacity: 0; }
+
+/* On touchscreens the scene never captures input, so a swipe over the
+   hero scrolls instead of turning the mark. */
 @media (pointer: coarse) {
-  .hero__scene { pointer-events: none; }
+  .hero__scene { pointer-events: none; cursor: auto; }
 }
 
 /* Overlay lockup — non-interactive so the 3D scene stays draggable. */
@@ -228,8 +248,8 @@ a { color: inherit; }
 
 /* ------------------------------------------------------------
    6. CONTACT
-   Email as the primary CTA (editorial, hairline-underlined —
-   not a button), plus quiet social links.
+   Email as the single CTA (editorial, hairline-underlined —
+   not a button).
    ------------------------------------------------------------ */
 .contact {
   display: flex;
@@ -265,41 +285,6 @@ a { color: inherit; }
 .contact__email:focus-visible {
   border-bottom-color: var(--green);
 }
-
-.contact__social {
-  display: flex;
-  align-items: center;
-  gap: clamp(1.5rem, 4vw, 2.5rem);
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.contact__social a {
-  position: relative;
-  font-size: 0.75rem;
-  font-weight: 600;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  text-decoration: none;
-  padding-bottom: 0.35em;
-  border-bottom: 1px solid transparent;
-  transition: border-color 160ms ease;
-}
-
-/* Expand the touch target to ~48px without moving the text or underline,
-   so these small labels stay comfortably tappable on a phone. */
-.contact__social a::before {
-  content: "";
-  position: absolute;
-  inset: -0.85rem -0.6rem;
-}
-
-.contact__social a:hover,
-.contact__social a:focus-visible {
-  border-bottom-color: var(--green);
-}
-
 
 /* ------------------------------------------------------------
    7. FOOTER
