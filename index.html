@@ -7,7 +7,7 @@
   <!-- Primary meta -->
   <title>Folkmark</title>
   <meta name="description" content="Folkmark is a brand and narrative studio — a cultural force for authentic connections.">
-  <meta name="theme-color" content="#1D3C2E">
+  <meta name="theme-color" content="#0A1510">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
@@ -28,16 +28,32 @@
   <!-- Fonts: Instrument Serif (display) + Overpass (UI/body) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Overpass:wght@400;600;700&display=swap">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Overpass:wght@400;600;700;800&display=swap">
 
   <link rel="stylesheet" href="styles.css">
+
+  <!-- Decide up front whether this device gets the live 3D mark, so the
+       still can stay hidden while the mark rises out of the fog instead of
+       flashing first. Phones, reduced-motion and constrained devices keep
+       the still (and so does no-JS, since this never runs). -->
+  <script>
+    (function () {
+      try {
+        var mm = window.matchMedia, c = navigator.connection, ok = true;
+        if (mm && (mm('(prefers-reduced-motion: reduce)').matches || mm('(pointer: coarse)').matches)) { ok = false; }
+        if (c && (c.saveData || /(?:^|-)2g$/.test(c.effectiveType || ''))) { ok = false; }
+        if (typeof navigator.deviceMemory === 'number' && navigator.deviceMemory < 4) { ok = false; }
+        if (ok) { document.documentElement.classList.add('has-3d'); }
+      } catch (e) {}
+    }());
+  </script>
 </head>
 <body>
 
   <!-- ============================================================
-       HERO — full viewport; Spline scene mounts behind the wordmark
+       HERO — full viewport; the 3D mark sits behind the wordmark
        ============================================================ -->
-  <header class="hero" id="top">
+  <header class="hero" id="top" data-scroll>
 
     <!-- Masthead lockup: quiet wordmark + studio descriptor, top-left.
          pointer-events are disabled in CSS so the 3D scene stays draggable. -->
@@ -46,19 +62,18 @@
       <p class="hero__label">Brand &amp; Narrative Studio</p>
     </div>
 
-    <!-- Spline scene mount. The hero field (gradient + grain, in CSS) shows
-         through the transparent scene and behind the base64 poster, so there
-         is never a white flash. Decorative, so hidden from assistive tech.
-         The runtime is loaded lazily by script.js; until then (and for
-         reduced-motion / no-JS) the inline poster below stands in. -->
-    <div class="hero__scene" id="spline-mount" aria-hidden="true">
-      <spline-viewer
-        url="https://prod.spline.design/7sQDucqU1m47Oo3Q/scene.splinecode"
-        background="transparent"
-        loading-anim-type="spinner-small-dark">
-        <img class="hero__poster" alt="" src="data:image/png;base64,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">
-      </spline-viewer>
+    <!-- Atmosphere: haze drifting behind the mark, the mark, then a
+         low bank drifting in front of it. Decorative (aria-hidden). -->
+    <div class="hero__fog hero__fog--back" aria-hidden="true"></div>
+
+    <!-- 3D mark mount. script.js lazily loads the native three.js mark
+         (logo3d.js); until then — and for phones, reduced-motion and
+         no-JS — the still render below stands in. -->
+    <div class="hero__scene" id="logo-mount" aria-hidden="true">
+      <img class="hero__poster" src="logo-mark.webp" alt="" width="908" height="900" decoding="async" fetchpriority="high">
     </div>
+
+    <div class="hero__fog hero__fog--front" aria-hidden="true"></div>
 
     <!-- Quiet scroll cue -->
     <p class="hero__cue">Scroll</p>
@@ -71,19 +86,31 @@
          STATEMENT — one editorial positioning line, lots of air
          ========================================================== -->
     <section class="statement" aria-labelledby="statement-heading">
-      <h2 class="statement__text" id="statement-heading">A cultural force for authentic connections.</h2>
+      <h2 class="statement__text" id="statement-heading">
+        <span class="line" data-scroll>A cultural force for</span>
+        <span class="line" data-scroll><em>authentic</em> connections.</span>
+      </h2>
     </section>
 
     <!-- ==========================================================
-         CONTACT — email as the primary call-to-action + socials
+         POSTER — the studio's name for itself at billboard scale, in
+         Overpass at its heaviest: the industrial counterweight to the
+         serif. Each line slides in along its own rail as it scrolls by.
+         ========================================================== -->
+    <section class="poster" aria-label="Brand and narrative studio">
+      <p class="poster__type">
+        <span class="poster__line" data-scroll>Brand <span class="amp">&amp;</span></span>
+        <span class="poster__line" data-scroll>Narrative</span>
+        <span class="poster__line" data-scroll>Studio</span>
+      </p>
+    </section>
+
+    <!-- ==========================================================
+         CONTACT — email as the single call-to-action
          ========================================================== -->
     <section class="contact" aria-labelledby="contact-heading">
-      <h2 class="eyebrow" id="contact-heading">Get in touch</h2>
-      <a class="contact__email" href="mailto:hello@folkmark.com">hello@folkmark.com</a>
-      <ul class="contact__social">
-        <li><a href="https://www.linkedin.com/company/folkmark/" target="_blank" rel="noopener">LinkedIn</a></li>
-        <li><a href="https://www.instagram.com/folkmark/" target="_blank" rel="noopener">Instagram</a></li>
-      </ul>
+      <h2 class="eyebrow" id="contact-heading" data-scroll>Get in touch</h2>
+      <a class="contact__email" href="mailto:hello@folkmark.com" data-scroll>hello@folkmark.com</a>
     </section>
 
   </main>
@@ -95,6 +122,9 @@
     <p class="footer__mark">© <span id="year">2026</span> Folkmark</p>
   </footer>
 
+  <!-- Lenis (self-hosted, MIT): weighted smooth scrolling. script.js only
+       starts it for fine pointers with motion allowed. -->
+  <script src="vendor/lenis.min.js" defer></script>
   <script src="script.js" defer></script>
 </body>
 </html>
